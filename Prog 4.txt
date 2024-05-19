@@ -1,0 +1,79 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#define MATRIX_SIZE 3
+
+// Function to multiply key matrix and message vector
+void multiplyMatrix(int keyMatrix[MATRIX_SIZE][MATRIX_SIZE], int messageVector[MATRIX_SIZE], int resultVector[MATRIX_SIZE]) {
+for (int i = 0; i < MATRIX_SIZE; i++) {
+resultVector[i] = 0;
+for (int j = 0; j < MATRIX_SIZE; j++)
+resultVector[i] += keyMatrix[i][j] * messageVector[j];
+resultVector[i] %= 26;
+if (resultVector[i] < 0) resultVector[i] += 26; // Ensure positive values
+}
+}
+
+// Function to encrypt the message using Hill Cipher
+void hillCipherEncrypt(char message[], int keyMatrix[MATRIX_SIZE][MATRIX_SIZE]) {
+int messageLength = strlen(message);
+int paddedLength = messageLength % MATRIX_SIZE == 0 ? messageLength : (messageLength / MATRIX_SIZE + 1) * MATRIX_SIZE;
+char paddedMessage[paddedLength];
+strcpy(paddedMessage, message);
+
+// Pad the message with 'X' if necessary
+for (int i = messageLength; i < paddedLength; i++)
+paddedMessage[i] = 'X';
+
+int encryptedIndices[paddedLength];
+for (int i = 0; i < paddedLength; i += MATRIX_SIZE) {
+int messageVector[MATRIX_SIZE] = {paddedMessage[i] - 'A', paddedMessage[i + 1] - 'A', paddedMessage[i + 2] - 'A'};
+int resultVector[MATRIX_SIZE];
+multiplyMatrix(keyMatrix, messageVector, resultVector);
+for (int j = 0; j < MATRIX_SIZE; j++)
+encryptedIndices[i + j] = resultVector[j];
+}
+
+printf("Encrypted message: ");
+for (int i = 0; i < paddedLength; i++)
+printf("%c", encryptedIndices[i] + 'A');
+printf("\n");
+}
+
+int main() {
+int keyMatrix[MATRIX_SIZE][MATRIX_SIZE];
+
+printf("Enter the 3x3 key matrix (9 numbers separated by spaces):\n");
+for (int i = 0; i < MATRIX_SIZE; i++)
+for (int j = 0; j < MATRIX_SIZE; j++)
+scanf("%d", &keyMatrix[i][j]);
+
+char message[100];
+printf("Enter the message to be encrypted: ");
+scanf(" %[^\n]", message);
+
+// Convert the message to uppercase
+for (int i = 0; message[i]; i++)
+message[i] = toupper(message[i]);
+
+// Check if the message contains only alphabetic characters
+for (int i = 0; message[i]; i++) {
+if (message[i] < 'A' || message[i] > 'Z') {
+printf("Error: Message should contain only alphabetic characters.\n");
+return 1;
+}
+}
+
+printf("\nKey Matrix:\n");
+for (int i = 0; i < MATRIX_SIZE; i++) {
+for (int j = 0; j < MATRIX_SIZE; j++)
+printf("%d ", keyMatrix[i][j]);
+printf("\n");
+}
+
+printf("\nMessage: %s\n", message);
+hillCipherEncrypt(message, keyMatrix);
+
+return 0;
+}
