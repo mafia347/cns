@@ -1,37 +1,40 @@
-#include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#define P 23
+#define G 5
 
-long long int power(long long int a, long long int b, long long int P)
-{
-if (b == 1)
-return a;
-else
-return (((long long int)pow(a, b)) % P);
+int mod_exp(int base, int exp, int modulus) {
+int result = 1;
+while (exp > 0) {
+if (exp % 2 == 1) {
+result = (result * base) % modulus;
+}
+base = (base * base) % modulus;
+exp /= 2;
+}
+return result;
 }
 
-int main()
-{
-long long int P, G, x, a, y, b, ka, kb;
+void diffie_hellman(int private_key, int *public_key) {
+*public_key = mod_exp(G, private_key, P);
+}
 
-printf("Enter the value of P (a prime number): ");
-scanf("%lld", &P);
+int main() {
+int private_key_client, private_key_server;
+int public_key_client, public_key_server;
+int shared_secret_client, shared_secret_server;
 
-printf("Enter the value of G (a primitive root for P): ");
-scanf("%lld", &G);
+private_key_client = rand() % (P - 1) + 1;
+private_key_server = rand() % (P - 1) + 1;
 
-printf("Enter the private key a for Alice: ");
-scanf("%lld", &a);
-x = power(G, a, P);
+diffie_hellman(private_key_client, &public_key_client);
+diffie_hellman(private_key_server, &public_key_server);
 
-printf("Enter the private key b for Bob: ");
-scanf("%lld", &b);
-y = power(G, b, P);
+shared_secret_client = mod_exp(public_key_server, private_key_client, P);
+shared_secret_server = mod_exp(public_key_client, private_key_server, P);
 
-ka = power(y, a, P);
-kb = power(x, b, P);
-
-printf("Secret key for Alice is : %lld\n", ka);
-printf("Secret key for Bob is : %lld\n", kb);
-
+printf("Client shared secret: %d\n", shared_secret_client);
+printf("Server shared secret: %d\n", shared_secret_server);
 return 0;
 }
