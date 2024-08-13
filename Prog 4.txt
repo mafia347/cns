@@ -5,20 +5,6 @@
 #include <math.h>
 #define MAX_SIZE 10
 
-int determinant(int a, int b, int c, int d) {
-return (a * d - b * c);
-}
-
-int moduloInverse(int a, int m) {
-int i;
-for (i = 1; i < m; i++) {
-if ((a * i) % m == 1) {
-return i;
-}
-}
-return -1;
-}
-
 void encrypt(char message[], int keyMatrix[][MAX_SIZE], int keySize) {
 int messageLength = strlen(message);
 int paddedLength = (int) ceil(messageLength / (float) keySize) * keySize;
@@ -57,10 +43,6 @@ for (i = 0; i < keySize; i++) {
 for (j = 0; j < keySize; j++) {
 scanf("%d", &keyMatrix[i][j]);
 }
-}
-if (determinant(keyMatrix[0][0], keyMatrix[0][1], keyMatrix[1][0], keyMatrix[1][1]) == 0) {
-printf("The key matrix is not invertible. Please enter a valid key matrix.\n");
-return 1;
 }
 printf("Enter the message to be encrypted (uppercase letters only): ");
 scanf("%s", message);
